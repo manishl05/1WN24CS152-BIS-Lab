@@ -4,8 +4,6 @@ import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 
-# 1. Create a simple student dataset
-# Columns: Study hours, Attendance, Previous score
 X = np.array([
     [2, 50, 35],
     [3, 60, 40],
@@ -21,7 +19,6 @@ X = np.array([
     [3, 50, 38]
 ])
 
-# 0 = Fail, 1 = Pass
 y = np.array([0, 0, 0, 1, 1, 1, 1, 1,
               0, 1, 1, 0])
 
@@ -31,7 +28,6 @@ features = [
     "Previous Score"
 ]
 
-# 2. Genetic Algorithm settings
 POPULATION_SIZE = 8
 GENERATIONS = 10
 MUTATION_RATE = 0.1
@@ -44,7 +40,6 @@ cv = StratifiedKFold(
     n_splits=3, shuffle=True, random_state=42
 )
 
-# 3. Fitness function
 def fitness(chromosome):
     selected = np.flatnonzero(chromosome)
 
@@ -61,12 +56,10 @@ def fitness(chromosome):
         scoring="accuracy"
     ).mean()
 
-    # Reward accuracy and fewer features
     return 0.9 * accuracy + 0.1 * (
         1 - len(selected) / N_FEATURES
     )
 
-# 4. Generate a random chromosome
 def create_chromosome():
     chromosome = np.random.randint(0, 2, N_FEATURES)
 
@@ -75,12 +68,10 @@ def create_chromosome():
 
     return chromosome
 
-# 5. Select the best of three random candidates
 def select_parent(population):
     candidates = random.sample(population, 3)
     return max(candidates, key=fitness).copy()
 
-# 6. Crossover
 def crossover(p1, p2):
     point = random.randint(1, N_FEATURES - 1)
 
@@ -89,7 +80,6 @@ def crossover(p1, p2):
 
     return c1, c2
 
-# 7. Mutation
 def mutate(chromosome):
     child = chromosome.copy()
 
@@ -102,7 +92,6 @@ def mutate(chromosome):
 
     return child
 
-# 8. Initialize population
 population = [
     create_chromosome()
     for _ in range(POPULATION_SIZE)
@@ -111,7 +100,6 @@ population = [
 best_solution = None
 best_fitness = -1
 
-# 9. Evolve the population
 for generation in range(GENERATIONS):
     scores = [fitness(c) for c in population]
     order = np.argsort(scores)[::-1]
@@ -128,7 +116,6 @@ for generation in range(GENERATIONS):
         f"Fitness = {best_fitness:.4f}"
     )
 
-    # Preserve the best solution
     new_population = [best_solution.copy()]
 
     while len(new_population) < POPULATION_SIZE:
@@ -144,7 +131,6 @@ for generation in range(GENERATIONS):
 
     population = new_population
 
-# 10. Display the best solution
 selected = np.flatnonzero(best_solution)
 
 print("\n===== BEST SOLUTION =====")
@@ -156,7 +142,6 @@ for i in selected:
 print("Number of features:", len(selected))
 print("Best fitness:", round(best_fitness, 4))
 
-# Evaluate the selected features
 final_model = DecisionTreeClassifier(max_depth=2)
 final_model.fit(X[:, selected], y)
 
